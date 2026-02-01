@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Party Game</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F7FFF7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary);
+            background-image: linear-gradient(135deg, var(--secondary) 0%, #556270 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            /* Make whole body clickable */
+            cursor: pointer;
+        }
+
+        #game-container {
+            background-color: var(--light);
+            width: 85%;
+            max-width: 500px;
+            height: 75%;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            transition: transform 0.1s;
+            pointer-events: none; /* Let clicks pass through to body */
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #activity-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--dark);
+            line-height: 1.2;
+            margin: 20px 0;
+            word-wrap: break-word;
+        }
+
+        #instruction {
+            color: #888;
+            font-size: 1rem;
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+
+        #status-bar {
+            position: absolute;
+            bottom: 10px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+
+        /* Overlay for permissions */
+        #start-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            cursor: auto;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+            margin-top: 20px;
+            font-weight: bold;
+            pointer-events: auto; /* Re-enable clicks for buttons */
+        }
+
+        .shake-anim {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+</head>
+<body onclick="handleTap()">
+
+    <div id="start-overlay">
+        <h2>Ready?</h2>
+        <p>Because you are offline, shaking might be blocked by your phone.</p>
+        <p><strong>Tap anywhere</strong> to play!</p>
+        <button class="btn" onclick="startGame(event)">START</button>
+    </div>
+
+    <div id="game-container">
+        <h1>Do This!</h1>
+        <div id="activity-text">Tap or Shake!</div>
+        <p id="instruction">Tap screen for next</p>
+    </div>
+
+    <div id="status-bar">Detecting sensors...</div>
+
+    <script>
+        // --- DATA GENERATION ---
+        const activities = [];
+        const animals = ["Lion", "T-Rex", "Frog", "Bunny", "Snake", "Monkey", "Elephant", "Chicken", "Cat", "Dog", "Robot", "Zombie", "Ghost", "Penguin", "Kangaroo"];
+        const animalActions = ["Walk like a", "Sound like a", "Eat like a", "Sleep like a", "Dance like a"];
+        const colors = ["Red", "Blue", "Green", "Yellow", "Purple", "Orange", "White", "Black", "Pink", "Brown"];
+        const searchActions = ["Find something", "Touch something", "Point to something", "Bring me something"];
+        const sillyVerbs = ["Wiggle", "Shake", "Tap", "Rub", "Hide"];
+        const bodyParts = ["Nose", "Ear", "Knee", "Elbow", "Foot", "Tummy", "Head", "Shoulder"];
+        
+        animals.forEach(a => animalActions.forEach(ac => activities.push(`${ac} ${a}!`)));
+        colors.forEach(c => searchActions.forEach(ac => activities.push(`${ac} ${c}!`)));
+        bodyParts.forEach(p => sillyVerbs.forEach(v => activities.push(`${v} your ${p}!`)));
+
+        const specificTasks = [
+            "Do a silly dance", "Sing a song", "Freeze like a statue", "Spin around 3 times",
+            "Do 5 jumping jacks", "Melt like ice cream", "Talk like a robot", "Tell a joke",
+            "High-five someone", "Make a fart noise", "Balance on one leg", "Cross your eyes",
+            "Puff out cheeks", "Drive a race car", "Play air guitar", "Drum on your tummy",
+            "Walk backwards", "Crawl like a baby", "Swim on the floor", "Act like a grandma",
+            "Lift something heavy", "Slow motion walk", "Fast motion walk", "Be invisible",
+            "Whisper your name", "Yell your name", "Clap 7 times", "Stomp your feet",
+            "Fly like a bird", "Ants in your pants", "Hug yourself", "Fish face",
+            "Catch a fly", "Be a Ninja", "Floss dance", "Act like a pirate"
+        ];
+        specificTasks.forEach(t => activities.push(t));
+        
+        // Double up with Simon Says
+        const len = activities.length;
+        for(let i=0; i<len; i++) activities.push("Simon Says: " + activities[i]);
+        
+        // Shuffle
+        activities.sort(() => Math.random() - 0.5);
+
+        // --- GAME LOGIC ---
+        const textElement = document.getElementById('activity-text');
+        const container = document.getElementById('game-container');
+        const status = document.getElementById('status-bar');
+        
+        let lastShakeTime = 0;
+        let sensorActive = false;
+
+        function startGame(e) {
+            if(e) e.stopPropagation(); // Prevent immediate trigger
+            document.getElementById('start-overlay').style.display = 'none';
+            initSensors();
+            newActivity();
+        }
+
+        function handleTap() {
+            newActivity();
+        }
+
+        function newActivity() {
+            // Visual Shake Effect
+            container.classList.remove('shake-anim');
+            void container.offsetWidth; 
+            container.classList.add('shake-anim');
+
+            // Pick Text
+            const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+            textElement.innerText = randomActivity;
+
+            // Random BG Color
+            const bgColors = ['#4ECDC4', '#FF6B6B', '#FFE66D', '#1A535C', '#FF9F1C'];
+            const randomColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+            document.body.style.backgroundColor = randomColor;
+        }
+
+        function initSensors() {
+            // Method 1: Modern LinearAccelerationSensor (Android 10+)
+            if ('LinearAccelerationSensor' in window) {
+                try {
+                    const accelerometer = new LinearAccelerationSensor({ frequency: 60 });
+                    accelerometer.addEventListener('reading', () => {
+                        const total = Math.abs(accelerometer.x) + Math.abs(accelerometer.y) + Math.abs(accelerometer.z);
+                        if (total > 15) { // Shake Threshold
+                            checkShake();
+                        }
+                        if(!sensorActive) { sensorActive = true; status.innerText = "Motion Sensor: Active"; }
+                    });
+                    accelerometer.start();
+                    accelerometer.addEventListener('error', (e) => {
+                        status.innerText = "Motion Sensor: Blocked (Use Tap)";
+                    });
+                    return;
+                } catch (err) {
+                    console.log("Sensor API failed, falling back");
+                }
+            }
+
+            // Method 2: DeviceMotion (Legacy/iOS)
+            if (typeof DeviceMotionEvent !== 'undefined') {
+                // Request Permission (iOS)
+                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                    DeviceMotionEvent.requestPermission()
+                        .then(response => {
+                            if (response == 'granted') {
+                                window.addEventListener('devicemotion', handleMotion, true);
+                                status.innerText = "Motion Sensor: Active";
+                            }
+                        })
+                        .catch(console.error);
+                } else {
+                    // Android (Non-Secure Contexts often block this)
+                    window.addEventListener('devicemotion', handleMotion, true);
+                    
+                    // Check if it's actually receiving data
+                    setTimeout(() => {
+                        if(!sensorActive) status.innerText = "Motion Sensor: Blocked (Tap Screen)";
+                    }, 1000);
+                }
+            } else {
+                status.innerText = "Motion Sensor: Not Supported (Tap Screen)";
+            }
+        }
+
+        function handleMotion(event) {
+            let current = event.accelerationIncludingGravity;
+            if (!current) return;
+            
+            // Check if we are actually getting numbers
+            if (current.x || current.y || current.z) {
+                if(!sensorActive) { sensorActive = true; status.innerText = "Motion Sensor: Active"; }
+                
+                // Simple Shake Detect
+                let speed = Math.abs(current.x) + Math.abs(current.y) + Math.abs(current.z);
+                // 25 is roughly gravity (9.8) * 2.5
+                if (speed > 25) { 
+                    checkShake();
+                }
+            }
+        }
+
+        function checkShake() {
+            let currentTime = new Date().getTime();
+            if ((currentTime - lastShakeTime) > 1000) {
+                lastShakeTime = currentTime;
+                newActivity();
+            }
+        }
