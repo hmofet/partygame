@@ -8,17 +8,15 @@
         :root {
             --primary: #FF6B6B;
             --secondary: #4ECDC4;
-            --accent: #FFE66D;
             --dark: #2C3E50;
             --light: #F7FFF7;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             padding: 0;
             background-color: var(--secondary);
-            background-image: linear-gradient(135deg, var(--secondary) 0%, #556270 100%);
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -28,7 +26,6 @@
             touch-action: manipulation;
             user-select: none;
             -webkit-user-select: none;
-            /* Make whole body clickable */
             cursor: pointer;
         }
 
@@ -36,7 +33,7 @@
             background-color: var(--light);
             width: 85%;
             max-width: 500px;
-            height: 75%;
+            height: 70%;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             display: flex;
@@ -45,9 +42,8 @@
             justify-content: center;
             padding: 20px;
             text-align: center;
-            position: relative;
             transition: transform 0.1s;
-            pointer-events: none; /* Let clicks pass through to body */
+            pointer-events: none;
         }
 
         h1 {
@@ -59,30 +55,20 @@
         }
 
         #activity-text {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: bold;
             color: var(--dark);
-            line-height: 1.2;
             margin: 20px 0;
-            word-wrap: break-word;
+            line-height: 1.3;
         }
 
         #instruction {
             color: #888;
             font-size: 1rem;
             margin-top: auto;
-            margin-bottom: 20px;
         }
 
-        #status-bar {
-            position: absolute;
-            bottom: 10px;
-            color: rgba(255,255,255,0.6);
-            font-size: 0.8rem;
-            pointer-events: none;
-        }
-
-        /* Overlay for permissions */
+        /* Overlay */
         #start-overlay {
             position: absolute;
             top: 0;
@@ -99,21 +85,32 @@
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
-            cursor: auto;
         }
 
         .btn {
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 15px 40px;
+            padding: 20px 50px;
             font-size: 1.5rem;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-            margin-top: 20px;
+            margin-top: 30px;
             font-weight: bold;
-            pointer-events: auto; /* Re-enable clicks for buttons */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            /* Important: Ensure button is clickable */
+            pointer-events: auto; 
+            touch-action: manipulation;
+        }
+
+        #debug-log {
+            position: absolute;
+            bottom: 5px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
         }
 
         .shake-anim {
@@ -131,158 +128,151 @@
 <body onclick="handleTap()">
 
     <div id="start-overlay">
-        <h2>Ready?</h2>
-        <p>Because you are offline, shaking might be blocked by your phone.</p>
-        <p><strong>Tap anywhere</strong> to play!</p>
-        <button class="btn" onclick="startGame(event)">START</button>
+        <h2>Ready to Play?</h2>
+        <p>Tap Start to enable motion sensors.</p>
+        <p style="font-size: 0.9rem; opacity: 0.8;">(If shaking doesn't work, you can just tap the screen!)</p>
+        <button class="btn" id="start-btn">START GAME</button>
     </div>
 
     <div id="game-container">
         <h1>Do This!</h1>
         <div id="activity-text">Tap or Shake!</div>
-        <p id="instruction">Tap screen for next</p>
+        <p id="instruction">Tap anywhere for next</p>
     </div>
 
-    <div id="status-bar">Detecting sensors...</div>
+    <div id="debug-log">Waiting for start...</div>
 
     <script>
-        // --- DATA GENERATION ---
+        // --- 1. GAME DATA GENERATION ---
         const activities = [];
-        const animals = ["Lion", "T-Rex", "Frog", "Bunny", "Snake", "Monkey", "Elephant", "Chicken", "Cat", "Dog", "Robot", "Zombie", "Ghost", "Penguin", "Kangaroo"];
-        const animalActions = ["Walk like a", "Sound like a", "Eat like a", "Sleep like a", "Dance like a"];
-        const colors = ["Red", "Blue", "Green", "Yellow", "Purple", "Orange", "White", "Black", "Pink", "Brown"];
-        const searchActions = ["Find something", "Touch something", "Point to something", "Bring me something"];
+        const animals = ["Lion", "T-Rex", "Frog", "Bunny", "Snake", "Monkey", "Elephant", "Chicken", "Cat", "Dog", "Robot", "Zombie", "Ghost"];
+        const animalActions = ["Walk like a", "Sound like a", "Eat like a", "Dance like a"];
+        const colors = ["Red", "Blue", "Green", "Yellow", "Purple", "Orange"];
+        const searchActions = ["Find something", "Touch something", "Point to something"];
         const sillyVerbs = ["Wiggle", "Shake", "Tap", "Rub", "Hide"];
-        const bodyParts = ["Nose", "Ear", "Knee", "Elbow", "Foot", "Tummy", "Head", "Shoulder"];
+        const bodyParts = ["Nose", "Ear", "Knee", "Elbow", "Foot", "Tummy", "Head"];
         
         animals.forEach(a => animalActions.forEach(ac => activities.push(`${ac} ${a}!`)));
         colors.forEach(c => searchActions.forEach(ac => activities.push(`${ac} ${c}!`)));
         bodyParts.forEach(p => sillyVerbs.forEach(v => activities.push(`${v} your ${p}!`)));
 
-        const specificTasks = [
-            "Do a silly dance", "Sing a song", "Freeze like a statue", "Spin around 3 times",
-            "Do 5 jumping jacks", "Melt like ice cream", "Talk like a robot", "Tell a joke",
-            "High-five someone", "Make a fart noise", "Balance on one leg", "Cross your eyes",
-            "Puff out cheeks", "Drive a race car", "Play air guitar", "Drum on your tummy",
-            "Walk backwards", "Crawl like a baby", "Swim on the floor", "Act like a grandma",
-            "Lift something heavy", "Slow motion walk", "Fast motion walk", "Be invisible",
-            "Whisper your name", "Yell your name", "Clap 7 times", "Stomp your feet",
-            "Fly like a bird", "Ants in your pants", "Hug yourself", "Fish face",
-            "Catch a fly", "Be a Ninja", "Floss dance", "Act like a pirate"
+        const tasks = [
+            "Do a silly dance", "Sing a song", "Freeze!", "Spin 3 times",
+            "5 Jumping Jacks", "Melt like ice cream", "Robot voice", "Tell a joke",
+            "High-five someone", "Fart noise!", "Balance on one leg", "Cross eyes",
+            "Puff cheeks", "Drive a race car", "Air guitar", "Drum on tummy",
+            "Walk backwards", "Baby crawl", "Swim on floor", "Act like Grandma",
+            "Lift heavy rock", "Slow motion", "Fast motion", "Be invisible",
+            "Whisper name", "Yell name", "Clap 7 times", "Stomp feet",
+            "Fly like bird", "Ants in pants", "Hug yourself", "Fish face"
         ];
-        specificTasks.forEach(t => activities.push(t));
-        
-        // Double up with Simon Says
+        tasks.forEach(t => activities.push(t));
+        // Add Simon Says variations
         const len = activities.length;
         for(let i=0; i<len; i++) activities.push("Simon Says: " + activities[i]);
-        
-        // Shuffle
         activities.sort(() => Math.random() - 0.5);
 
-        // --- GAME LOGIC ---
+        // --- 2. LOGIC ---
         const textElement = document.getElementById('activity-text');
         const container = document.getElementById('game-container');
-        const status = document.getElementById('status-bar');
+        const debug = document.getElementById('debug-log');
+        const overlay = document.getElementById('start-overlay');
+        const startBtn = document.getElementById('start-btn');
         
         let lastShakeTime = 0;
-        let sensorActive = false;
+        let shakeThreshold = 15;
 
-        function startGame(e) {
-            if(e) e.stopPropagation(); // Prevent immediate trigger
-            document.getElementById('start-overlay').style.display = 'none';
-            initSensors();
+        // BIND CLICK EVENT DIRECTLY
+        // This is crucial for iOS. The listener must be attached in JS, not HTML onclick="" sometimes
+        startBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Stop the click from triggering "handleTap" immediately
+            
+            // 1. Hide Overlay immediately so game feels responsive
+            overlay.style.display = 'none';
             newActivity();
-        }
+
+            // 2. Request Permissions (iOS 13+)
+            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            debug.innerText = "iOS Sensors: Active";
+                            window.addEventListener('devicemotion', handleMotion, true);
+                        } else {
+                            debug.innerText = "iOS Permission Denied (Use Tap)";
+                        }
+                    })
+                    .catch(err => {
+                        debug.innerText = "iOS Error: " + err.message;
+                    });
+            } 
+            // 3. Android / Non-iOS
+            else {
+                // Try Modern Generic Sensor API (Android Chrome)
+                if ('LinearAccelerationSensor' in window) {
+                    try {
+                        const sensor = new LinearAccelerationSensor({ frequency: 60 });
+                        sensor.addEventListener('reading', () => {
+                            const total = Math.abs(sensor.x) + Math.abs(sensor.y) + Math.abs(sensor.z);
+                            if (total > shakeThreshold) checkShake();
+                        });
+                        sensor.start();
+                        debug.innerText = "Android Sensor: Active";
+                    } catch (err) {
+                        debug.innerText = "Sensor API Error (Use Tap)";
+                    }
+                } 
+                // Try Legacy DeviceMotion (Older Android)
+                else if ('ondevicemotion' in window) {
+                    window.addEventListener('devicemotion', handleMotion, true);
+                    debug.innerText = "Legacy Sensor: Active";
+                } else {
+                    debug.innerText = "No Sensors Found (Use Tap)";
+                }
+            }
+        });
 
         function handleTap() {
+            // This allows clicking anywhere to play, even if sensors fail
             newActivity();
         }
 
         function newActivity() {
-            // Visual Shake Effect
+            // Animation
             container.classList.remove('shake-anim');
             void container.offsetWidth; 
             container.classList.add('shake-anim');
 
-            // Pick Text
+            // Text
             const randomActivity = activities[Math.floor(Math.random() * activities.length)];
             textElement.innerText = randomActivity;
 
-            // Random BG Color
+            // Color
             const bgColors = ['#4ECDC4', '#FF6B6B', '#FFE66D', '#1A535C', '#FF9F1C'];
-            const randomColor = bgColors[Math.floor(Math.random() * bgColors.length)];
-            document.body.style.backgroundColor = randomColor;
-        }
-
-        function initSensors() {
-            // Method 1: Modern LinearAccelerationSensor (Android 10+)
-            if ('LinearAccelerationSensor' in window) {
-                try {
-                    const accelerometer = new LinearAccelerationSensor({ frequency: 60 });
-                    accelerometer.addEventListener('reading', () => {
-                        const total = Math.abs(accelerometer.x) + Math.abs(accelerometer.y) + Math.abs(accelerometer.z);
-                        if (total > 15) { // Shake Threshold
-                            checkShake();
-                        }
-                        if(!sensorActive) { sensorActive = true; status.innerText = "Motion Sensor: Active"; }
-                    });
-                    accelerometer.start();
-                    accelerometer.addEventListener('error', (e) => {
-                        status.innerText = "Motion Sensor: Blocked (Use Tap)";
-                    });
-                    return;
-                } catch (err) {
-                    console.log("Sensor API failed, falling back");
-                }
-            }
-
-            // Method 2: DeviceMotion (Legacy/iOS)
-            if (typeof DeviceMotionEvent !== 'undefined') {
-                // Request Permission (iOS)
-                if (typeof DeviceMotionEvent.requestPermission === 'function') {
-                    DeviceMotionEvent.requestPermission()
-                        .then(response => {
-                            if (response == 'granted') {
-                                window.addEventListener('devicemotion', handleMotion, true);
-                                status.innerText = "Motion Sensor: Active";
-                            }
-                        })
-                        .catch(console.error);
-                } else {
-                    // Android (Non-Secure Contexts often block this)
-                    window.addEventListener('devicemotion', handleMotion, true);
-                    
-                    // Check if it's actually receiving data
-                    setTimeout(() => {
-                        if(!sensorActive) status.innerText = "Motion Sensor: Blocked (Tap Screen)";
-                    }, 1000);
-                }
-            } else {
-                status.innerText = "Motion Sensor: Not Supported (Tap Screen)";
-            }
+            document.body.style.backgroundColor = bgColors[Math.floor(Math.random() * bgColors.length)];
         }
 
         function handleMotion(event) {
-            let current = event.accelerationIncludingGravity;
-            if (!current) return;
+            // Legacy/iOS Motion Handler
+            const acc = event.accelerationIncludingGravity;
+            if (!acc) return;
+
+            // Calculate Speed
+            const speed = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
             
-            // Check if we are actually getting numbers
-            if (current.x || current.y || current.z) {
-                if(!sensorActive) { sensorActive = true; status.innerText = "Motion Sensor: Active"; }
-                
-                // Simple Shake Detect
-                let speed = Math.abs(current.x) + Math.abs(current.y) + Math.abs(current.z);
-                // 25 is roughly gravity (9.8) * 2.5
-                if (speed > 25) { 
-                    checkShake();
-                }
+            // Threshold (Gravity is ~9.8 per axis, so 25 is a decent shake)
+            if (speed > 25) {
+                checkShake();
             }
         }
 
         function checkShake() {
-            let currentTime = new Date().getTime();
-            if ((currentTime - lastShakeTime) > 1000) {
+            const currentTime = Date.now();
+            if ((currentTime - lastShakeTime) > 1000) { // 1 second cooldown
                 lastShakeTime = currentTime;
                 newActivity();
             }
         }
+    </script>
+</body>
+</html>
