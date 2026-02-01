@@ -3,333 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4ECDC4">
     <title>Party Game</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+
     <style>
-        :root {
-            --primary: #FF6B6B;
-            --secondary: #4ECDC4;
-            --dark: #2C3E50;
-            --light: #F7FFF7;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--secondary);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        #game-container {
-            background-color: var(--light);
-            width: 85%;
-            max-width: 500px;
-            height: 70%;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            text-align: center;
-            transition: transform 0.1s;
-            position: relative;
-        }
-
-        h1 {
-            color: var(--primary);
-            font-size: 1.2rem;
-            margin-top: 0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-        }
-
-        #activity-text {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--dark);
-            margin: 20px 0;
-            line-height: 1.2;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow-y: auto;
-        }
-
-        /* The Main Action Button */
-        #next-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            margin-bottom: 10px;
-            z-index: 10;
-        }
-        
-        #next-btn:active {
-            transform: scale(0.95);
-            background-color: #ff5252;
-        }
-
-        #instruction {
-            color: #888;
-            font-size: 0.9rem;
-            margin-top: 10px;
-        }
-
-        /* Overlay */
-        #start-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(44, 62, 80, 0.98);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .start-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 20px 50px;
-            font-size: 1.5rem;
-            border-radius: 50px;
-            cursor: pointer;
-            margin-top: 30px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        #debug-log {
-            position: absolute;
-            bottom: 5px;
-            font-size: 10px;
-            color: rgba(255,255,255,0.5);
-            width: 100%;
-            text-align: center;
-            pointer-events: none;
-        }
-
-        .shake-anim {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-2px, 0, 0); }
-            20%, 80% { transform: translate3d(4px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-            40%, 60% { transform: translate3d(6px, 0, 0); }
-        }
+        /* SAME STYLES AS BEFORE */
+        :root { --primary: #FF6B6B; --secondary: #4ECDC4; --dark: #2C3E50; --light: #F7FFF7; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background-color: var(--secondary); height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+        #game-container { background-color: var(--light); width: 85%; max-width: 500px; height: 70%; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; transition: transform 0.1s; position: relative; }
+        h1 { color: var(--primary); font-size: 1.2rem; margin-top: 0; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        #activity-text { font-size: 2.2rem; font-weight: 800; color: var(--dark); margin: 20px 0; line-height: 1.2; flex-grow: 1; display: flex; align-items: center; justify-content: center; overflow-y: auto; }
+        #next-btn { background-color: var(--primary); color: white; border: none; padding: 15px 30px; font-size: 1.2rem; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 10px; z-index: 10; }
+        #next-btn:active { transform: scale(0.95); background-color: #ff5252; }
+        #instruction { color: #888; font-size: 0.9rem; margin-top: 10px; }
+        #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 62, 80, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white; text-align: center; padding: 20px; box-sizing: border-box; }
+        .start-btn { background-color: var(--primary); color: white; border: none; padding: 20px 50px; font-size: 1.5rem; border-radius: 50px; cursor: pointer; margin-top: 30px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        #debug-log { position: absolute; bottom: 5px; font-size: 10px; color: rgba(255,255,255,0.5); width: 100%; text-align: center; pointer-events: none; }
+        .shake-anim { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
     </style>
 </head>
 <body>
-
     <div id="start-overlay">
         <h2>Ready to Play?</h2>
         <p>Give the phone a <strong>HARD SHAKE</strong><br>to change the card!</p>
         <button class="start-btn" id="start-btn">START GAME</button>
     </div>
-
     <div id="game-container">
         <h1>Do This!</h1>
         <div id="activity-text">Shake Hard<br>or Press Button</div>
-        
         <button id="next-btn" onclick="manualNext()">Next Activity ➜</button>
-        
         <p id="instruction">Shake device hard!</p>
     </div>
-
     <div id="debug-log">Waiting for start...</div>
 
     <script>
-        // --- 1. BETTER DATA GENERATION ---
-        const activities = [];
-
-        // A. Specific, Funny, Unique Tasks (Weighted heavily)
-        const uniqueTasks = [
-            "Freeze! Don't blink for 10 seconds.", "Slow motion race to the nearest wall.",
-            "Pretend the floor is hot lava!", "Talk with your tongue sticking out.",
-            "Act like a T-Rex trying to make a bed.", "Do your best evil laugh.",
-            "Spin around 5 times then try to walk straight.", "Make a face like you ate a sour lemon.",
-            "Pretend to be a melting snowman.", "Try to lick your own elbow.",
-            "Let the person to your left style your hair.", "Speak in a robot voice until your next turn.",
-            "High-five the tallest person in the room.", "Army crawl under a table.",
-            "Pretend to be a chicken laying an egg.", "Balance a shoe on your head.",
-            "Sing 'Happy Birthday' like an opera singer.", "Walk backwards everywhere for 1 minute.",
-            "Pretend you are underwater.", "Act like a monkey eating a banana.",
-            "Make a fart noise with your armpit.", "Stare contest! Look at the person to your right.",
-            "Pretend to drive a race car very fast.", "Do 5 jumping jacks while shouting 'I'm a star!'",
-            "Mime being stuck in a box.", "Pretend to be a waiter dropping a tray.",
-            "Hug yourself and say 'I am awesome!'", "Walk like a zombie.",
-            "Pretend to catch a fly with chopsticks.", "Yell your name as loud as you can.",
-            "Whisper a secret to the wall.", "Pretend to be a washing machine.",
-            "Act like a wacky waving inflatable tube man.", "Pretend to step on a Lego.",
-            "Be a statue of a superhero.", "Gallop like a horse around the room.",
-            "Pretend to be a baby crying.", "Do the 'Floss' dance.",
-            "Conduct an invisible orchestra.", "Pretend to eat a giant invisible sandwich.",
-            "Walk on your knees.", "Make a noise like a siren.",
-            "Pretend to be a sprinkler.", "Act like a cat coughing up a hairball.",
-            "Try to touch your nose with your tongue.", "Pretend to lift a heavy car.",
-            "Sneak around like a spy.", "Play air guitar like a rockstar.",
-            "Pretend to be a dog chasing its tail.", "Make a fish face.",
-            "Quack like a duck at everyone.", "Pretend to be a grumpy old man.",
-            "Do a karate chop in slow motion.", "Pretend to be a robot running out of battery."
-        ];
-
-        // Add unique tasks 5 times to weight them higher than the generated ones
-        for(let i=0; i<5; i++) {
-            uniqueTasks.forEach(t => activities.push(t));
+        // --- PWA REGISTRATION ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('SW registration failed: ', err));
+            });
         }
 
-        // B. "Find It" Scavenger Hunts
-        const colors = ["something Red", "something Blue", "something Fuzzy", "something Round", "a Sock", "a Spoon", "something Shiny", "a Hat"];
-        colors.forEach(item => {
-            activities.push(`Find ${item} and bring it here!`);
-            activities.push(`Run and touch ${item}!`);
-        });
-
-        // C. Group Interaction
-        activities.push("Everyone swap seats!");
-        activities.push("Group Hug!");
-        activities.push("Everyone freeze!");
-        activities.push("Everyone dance party!");
-        activities.push("Copy the person to your left!");
-
-        // D. "Simon Says" (Sparingly added)
-        const simonTasks = ["Touch your nose", "Jump once", "Clap twice", "Sit down", "Stand on one leg"];
-        simonTasks.forEach(t => activities.push(`Simon Says: ${t}`));
-
-        // Shuffle
+        // --- GAME LOGIC (Same as before) ---
+        const activities = [];
+        const uniqueTasks = [ "Freeze! Don't blink for 10s.", "Slow motion race to wall.", "Floor is lava!", "Talk with tongue out.", "T-Rex making bed.", "Evil laugh.", "Spin 5 times walk straight.", "Sour lemon face.", "Melting snowman.", "Lick your elbow.", "Let left person style hair.", "Robot voice.", "High-five tallest person.", "Army crawl.", "Chicken laying egg.", "Balance shoe on head.", "Opera singer Birthday.", "Walk backwards 1 min.", "Underwater mime.", "Monkey eating banana.", "Armpit fart.", "Stare contest right.", "Race car driver.", "5 jumping jacks shouting 'Star!'", "Stuck in a box.", "Waiter dropping tray.", "Hug yourself say 'Awesome!'", "Zombie walk.", "Catch fly with chopsticks.", "Yell name loud.", "Whisper secret to wall.", "Washing machine.", "Wacky tube man.", "Step on Lego.", "Superhero statue.", "Gallop like horse.", "Baby crying.", "The Floss.", "Invisible orchestra.", "Eat invisible sandwich.", "Walk on knees.", "Siren noise.", "Sprinkler.", "Cat hairball.", "Touch nose with tongue.", "Lift heavy car.", "Spy sneak.", "Air guitar.", "Dog chasing tail.", "Fish face.", "Quack like duck.", "Grumpy old man.", "Slow mo karate chop.", "Robot low battery." ];
+        for(let i=0; i<5; i++) uniqueTasks.forEach(t => activities.push(t));
+        ["something Red", "something Blue", "something Fuzzy", "something Round", "a Sock", "a Spoon", "something Shiny", "a Hat"].forEach(i => { activities.push(`Find ${i}!`); activities.push(`Touch ${i}!`); });
+        activities.push("Everyone swap seats!", "Group Hug!", "Freeze!", "Dance party!", "Copy person to left!");
+        ["Touch nose", "Jump once", "Clap twice", "Sit down", "Stand on one leg"].forEach(t => activities.push(`Simon Says: ${t}`));
         activities.sort(() => Math.random() - 0.5);
 
-        // --- 2. LOGIC ---
         const textElement = document.getElementById('activity-text');
         const container = document.getElementById('game-container');
         const debug = document.getElementById('debug-log');
         const overlay = document.getElementById('start-overlay');
         const startBtn = document.getElementById('start-btn');
-        
         let lastShakeTime = 0;
-        
-        // HIGHER THRESHOLD FOR "FORCEFUL" SHAKE
-        // Gravity is ~9.8. 
-        // 15 was too easy. 35-40 requires a sharp snap of the wrist.
         const shakeThreshold = 45; 
 
-        // BIND CLICK EVENT
         startBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            overlay.style.display = 'none';
-            manualNext(); // Start with a task
-
-            // iOS Request
+            e.stopPropagation(); overlay.style.display = 'none'; manualNext();
             if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                DeviceMotionEvent.requestPermission()
-                    .then(response => {
-                        if (response === 'granted') {
-                            window.addEventListener('devicemotion', handleMotion, true);
-                            debug.innerText = "iOS Sensors: Ready";
-                        } else {
-                            debug.innerText = "Permission Denied";
-                        }
-                    })
-                    .catch(console.error);
-            } 
-            // Android / Generic
-            else {
-                 if ('LinearAccelerationSensor' in window) {
-                    try {
-                        const sensor = new LinearAccelerationSensor({ frequency: 60 });
-                        sensor.addEventListener('reading', () => {
-                            // Modern sensors don't include gravity, so values are lower.
-                            // 15-20 is a good "Hard Shake" for LinearAcceleration
-                            const total = Math.abs(sensor.x) + Math.abs(sensor.y) + Math.abs(sensor.z);
-                            if (total > 20) checkShake();
-                        });
-                        sensor.start();
-                        debug.innerText = "Android Sensor: Ready";
-                    } catch (err) {
-                        fallbackMotion();
-                    }
-                } else {
-                    fallbackMotion();
-                }
+                DeviceMotionEvent.requestPermission().then(r => { if (r === 'granted') { window.addEventListener('devicemotion', handleMotion, true); debug.innerText = "iOS Sensors: Ready"; } }).catch(console.error);
+            } else {
+                 if ('LinearAccelerationSensor' in window) { try { const s = new LinearAccelerationSensor({ frequency: 60 }); s.addEventListener('reading', () => { if ((Math.abs(s.x)+Math.abs(s.y)+Math.abs(s.z)) > 20) checkShake(); }); s.start(); debug.innerText = "Android Sensor: Ready"; } catch (err) { fallbackMotion(); } } else { fallbackMotion(); }
             }
         });
-
-        function fallbackMotion() {
-            if ('ondevicemotion' in window) {
-                window.addEventListener('devicemotion', handleMotion, true);
-                debug.innerText = "Legacy Sensor: Ready";
-            }
-        }
-
-        function manualNext() {
-            // Button sound effect could go here
-            newActivity();
-        }
-
-        function newActivity() {
-            // Visual Shake Animation
-            container.classList.remove('shake-anim');
-            void container.offsetWidth; 
-            container.classList.add('shake-anim');
-
-            // Pick Text
-            const randomActivity = activities[Math.floor(Math.random() * activities.length)];
-            textElement.innerText = randomActivity;
-
-            // Random BG Color
-            const bgColors = ['#4ECDC4', '#FF6B6B', '#FFE66D', '#6A0572', '#FF9F1C', '#2AB7CA'];
-            document.body.style.backgroundColor = bgColors[Math.floor(Math.random() * bgColors.length)];
-        }
-
-        function handleMotion(event) {
-            const acc = event.accelerationIncludingGravity;
-            if (!acc) return;
-
-            const speed = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
-            
-            // Check against high threshold
-            if (speed > shakeThreshold) {
-                checkShake();
-            }
-        }
-
-        function checkShake() {
-            const currentTime = Date.now();
-            // 1.5 second cooldown to prevent accidental double-skips during a wild shake
-            if ((currentTime - lastShakeTime) > 1500) { 
-                lastShakeTime = currentTime;
-                navigator.vibrate?.(200); // Vibrate phone on success (Android only mostly)
-                newActivity();
-            }
-        }
+        function fallbackMotion() { if ('ondevicemotion' in window) { window.addEventListener('devicemotion', handleMotion, true); debug.innerText = "Legacy Sensor: Ready"; } }
+        function manualNext() { newActivity(); }
+        function newActivity() { container.classList.remove('shake-anim'); void container.offsetWidth; container.classList.add('shake-anim'); textElement.innerText = activities[Math.floor(Math.random() * activities.length)]; document.body.style.backgroundColor = ['#4ECDC4', '#FF6B6B', '#FFE66D', '#6A0572', '#FF9F1C', '#2AB7CA'][Math.floor(Math.random() * 6)]; }
+        function handleMotion(e) { const acc = e.accelerationIncludingGravity; if (!acc) return; if ((Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z)) > shakeThreshold) checkShake(); }
+        function checkShake() { const t = Date.now(); if ((t - lastShakeTime) > 1500) { lastShakeTime = t; navigator.vibrate?.(200); newActivity(); } }
     </script>
 </body>
 </html>
